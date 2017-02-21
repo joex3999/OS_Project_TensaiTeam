@@ -17,8 +17,10 @@ int main(){
    readSector(buffer, 30);
    interrupt(0x10,0xE*256+'\n',0,0,0);
    printString(buffer);
+
    makeInterrupt21();
-   interrupt(0x21,0,0,0,0);
+   interrupt(0x21,1,line,0,0);
+   interrupt(0x21,0,line,0,0);
 
 	while(1){
 	}
@@ -118,6 +120,20 @@ int DIV(int num,int den){
 }
 
 void handleInterrupt21(int ax, int bx, int cx, int dx){
+
+    if(ax == 0){
+        printString(bx);
+    }
+    else if(ax == 1){
+        readString(bx);
+    }
+    else if(ax == 2){
+        readSector(bx,cx);
+    }
+    else {
+        printString("ERROR! Invalid interrupt number.\0");
+    }
+
     
-    printString("Hello World, again!\0");
+   // printString("Hello World, again!\0");
 }
