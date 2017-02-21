@@ -3,7 +3,7 @@ void readString(char*);
 int getRemainder(int, int );
 int DIV(int ,int );
 void readSector(char*, int );
-
+void handleInterrupt21(int, int, int, int );
 int main(){
     char line[80];
     char buffer[512];
@@ -17,6 +17,8 @@ int main(){
    readSector(buffer, 30);
    interrupt(0x10,0xE*256+'\n',0,0,0);
    printString(buffer);
+   makeInterrupt21();
+   interrupt(0x21,0,0,0,0);
 
 	while(1){
 	}
@@ -113,4 +115,9 @@ int DIV(int num,int den){
 
     return num/den;
 
+}
+
+void handleInterrupt21(int ax, int bx, int cx, int dx){
+    
+    printString("Hello World, again!\0");
 }
