@@ -1,20 +1,22 @@
 void printString(char*);
+void readString(char*);
+int getRemainder(int, int );
+int DIV(int ,int );
+void readSector(char*, int );
 
-//int getRemainder(int, int );
-//int DIV(int ,int );
-//void readSector(char*, int );
-//void readString(char*);
 int main(){
     char line[80];
-	printString("Hello Awesome World !\0");
+    char buffer[512];
+    printString("Hello Awesome World !\0");
     printString("Enter a line: \0");
 
-	readString(line);
-	printString(line);
+    readString(line);
+    printString(line);
 
-    char buffer[512];
-	//readSector(buffer, 30);
-	//printString(buffer);
+   
+   readSector(buffer, 30);
+   interrupt(0x10,0xE*256+'\n',0,0,0);
+   printString(buffer);
 
 	while(1){
 	}
@@ -63,17 +65,17 @@ void readString(char* line)
  *(line + i) = 0x0;
  
 }
-/*
+
 void readSector(char*buffer, int sector){
 
 	int relative_sector = ( getRemainder(sector , 18) ) + 1;
 	int head = getRemainder(( DIV(sector , 18) ) ,2);
 	int track = DIV( sector , 36 );
 
-	printString(DIV(10,3)+"Before Interrupt\0");
+	//printString(DIV(10,3)+"Before Interrupt\0");
 
  	interrupt(0x13,2*256+1,buffer, track*256+relative_sector, head*256+0);
- 	printString("After Interrupt\0");
+ 	//printString("After Interrupt\0");
 
 }
 
@@ -111,4 +113,4 @@ int DIV(int num,int den){
 
     return num/den;
 
-} */
+}
