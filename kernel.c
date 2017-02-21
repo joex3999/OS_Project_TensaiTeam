@@ -53,5 +53,3 @@ void readString(char* line)
  *(line + i) = 0x0;
  
 }
-
-
