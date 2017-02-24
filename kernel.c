@@ -7,7 +7,7 @@ void handleInterrupt21(int, int, int, int );
 int main(){
     char line[80];
     char buffer[512];
-    printString("Hello Awesome World !\0");
+    printString("Hello World ! \0");
     printString("Enter a line: \0");
 
     readString(line);
