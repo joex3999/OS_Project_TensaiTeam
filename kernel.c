@@ -14,13 +14,13 @@ int main(){
         char buffer[13312];
         makeInterrupt21();
 //PART 1
-      //  interrupt(0x21, 0, "hello world !\0", 0, 0); /*print out the file*/
-      //interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
-      //  interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
+        //  interrupt(0x21, 0, "hello world !\0", 0, 0); /*print out the file*/
+      //  interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
+        //  interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
 // PART 2
-      //interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
+    //    interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
 //PART3
-       interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
+        interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
        interrupt(0x21, 5,0, 0, 0); /*read the file into buffer*/
 
 }
@@ -129,10 +129,10 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
                 readSector(bx,cx);
         }else if(ax==3) {
                 readFile(bx,cx);
-        } if(ax==4) {
+        } else  if(ax==4) {
                 executeProgram(bx,cx);
-        } if(ax==5){
-          terminate();
+        } else if(ax==5) {
+                terminate();
         }
         else {
                 printString("ERROR! Invalid interrupt number.\0");
@@ -147,30 +147,28 @@ void readFile(char* arr,char* address ){
         int i =0;
         int j = 0;
         int found = 0;
+        int start = 0;
         readSector(temp,2);
         for(i=0; i <512; i++) {
-
-
                 if(temp[i]==*(arr+j)) {
-                        j++;
-                        if(j>=6||(*arr+j+1)==0) { // could cause errors here ... change later
-                                i++; // wont work with the above == condition
-                                while(temp[i]!=0) {
-                                        readSector(address,temp[i]);
+                        if(!j){
+                                start = i+6;
+
+                        }j++;
+                        if(j>=6||(*arr+j+1)==0) { // could cause errors here ... change late
+
+                                while(temp[start]!=0) {
+                                        readSector(address,temp[start]);
 
                                         address+=512;
-                                        i++;
-
-                                }
-
+                                        start++;
+                                      }
                                 return;
-                        }
+                              }
                 }else{
                         j=0;
                 }
         }
-
-
         return;
 }
 
@@ -178,15 +176,16 @@ void  executeProgram(char* name,int segment ){
         char buffer[13312];
         int i = 0;
         readFile(name,buffer);
+
         for(i =0; i <13312; i++) {
                 putInMemory(segment,i,buffer[i]);
-
         }
+
         launchProgram(segment);
         return;
 }
 
 
 void terminate(){
-  while(1) ;
+        while(1) ;
 }
