@@ -8,22 +8,27 @@ void readFile(char*,char* );
 void  executeProgram(char*,int );
 void terminate();
 
-
 int main(){
         char line[80];
         char buffer[13312];
         makeInterrupt21();
-//PART 1
+//PART1:
         //  interrupt(0x21, 0, "hello world !\0", 0, 0); /*print out the file*/
-      //  interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
+        //  interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
         //  interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
-// PART 2
-    //    interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
-//PART3
-        interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
-       interrupt(0x21, 5,0, 0, 0); /*read the file into buffer*/
+//PART2:
+        //    interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
+//PART3:
+        //    interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
+        //   interrupt(0x21, 5,0, 0, 0); /*read the file into buffer*/
+//PART4:
+interrupt(0x21, 4, "shell\0", 0x2000, 0);
+        return 0;
+
 
 }
+
+
 void printString(char *ch){
         while (*ch != '\0') {
                 interrupt(0x10,0xE*256+*ch,0,0,0);
@@ -64,7 +69,7 @@ void readString(char* line)
         interrupt(0x10,0xE*256+'\n',0,0,0);
 
         *(line + i) = 0xa;
-        *(line + i) = 0x0;
+        *(line + i+1) = 0x0;
 
 }
 
@@ -129,7 +134,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
                 readSector(bx,cx);
         }else if(ax==3) {
                 readFile(bx,cx);
-        } else  if(ax==4) {
+        } else if(ax==4) {
                 executeProgram(bx,cx);
         } else if(ax==5) {
                 terminate();
@@ -151,10 +156,10 @@ void readFile(char* arr,char* address ){
         readSector(temp,2);
         for(i=0; i <512; i++) {
                 if(temp[i]==*(arr+j)) {
-                        if(!j){
+                        if(!j) {
                                 start = i+6;
 
-                        }j++;
+                        } j++;
                         if(j>=6||(*arr+j+1)==0) { // could cause errors here ... change late
 
                                 while(temp[start]!=0) {
@@ -162,9 +167,9 @@ void readFile(char* arr,char* address ){
 
                                         address+=512;
                                         start++;
-                                      }
+                                }
                                 return;
-                              }
+                        }
                 }else{
                         j=0;
                 }
@@ -187,5 +192,5 @@ void  executeProgram(char* name,int segment ){
 
 
 void terminate(){
-        while(1) ;
+      interrupt(0x21, 4, "shell\0", 0x2000, 0);
 }
