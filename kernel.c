@@ -192,5 +192,12 @@ void  executeProgram(char* name,int segment ){
 
 
 void terminate(){
-      interrupt(0x21, 4, "shell\0", 0x2000, 0);
+  char c [6];
+  c[0]='s';
+  c[1]='h';
+  c[2]='e';
+  c[3]='l';
+  c[4]='l';
+  c[5]='\0';
+      interrupt(0x21, 4, c, 0x2000, 0);
 }

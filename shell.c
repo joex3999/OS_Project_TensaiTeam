@@ -23,7 +23,8 @@ int main(){
 
 
                 else{
-                        interrupt(0x21, 0, "Bad Command!\n\0", 0, 0);
+                        interrupt(0x21, 0, "Bad Command! \n", 0, 0);
+  
 
                 }
         }
