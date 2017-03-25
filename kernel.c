@@ -34,7 +34,7 @@ void printString(char *ch){
                 interrupt(0x10,0xE*256+*ch,0,0,0);
                 ch++;
         }
-        
+
 }
 
 void readString(char* line)
@@ -161,7 +161,7 @@ void readFile(char* arr,char* address ){
                                 start = i+6;
 
                         } j++;
-                        if(j>=6||(*arr+j+1)==0) { // could cause errors here ... change late
+                        if(j>=6||(*arr+j+1)==0) {
 
                                 while(temp[start]!=0) {
                                         readSector(address,temp[start]);
@@ -181,13 +181,67 @@ void readFile(char* arr,char* address ){
 void  executeProgram(char* name,int segment ){
         char buffer[13312];
         int i = 0;
+        char c [50];
         readFile(name,buffer);
+        if(buffer[0]!=0x00){
 
         for(i =0; i <13312; i++) {
                 putInMemory(segment,i,buffer[i]);
         }
 
-        launchProgram(segment);
+        launchProgram(segment);}else{
+
+              c[0]='F';
+              c[1]='i';
+              c[2]='l';
+              c[3]='e';
+              c[4]=' ';
+              c[5]='D';
+              c[6]='o';
+              c[7]='e';
+              c[8]='s';
+              c[9]=' ';
+              c[10]='n';
+              c[11]='o';
+              c[12]='t';
+              c[13]=' ';
+              c[14]='e';
+              c[15]='x';
+              c[16]='i';
+              c[17]='s';
+              c[18]='t';
+              c[19]='\n';
+              c[20]='\b';
+              c[21]='\b';
+              c[22]='\b';
+              c[23]='\b';
+              c[24]='\b';
+              c[25]='\b';
+              c[26]='\b';
+              c[27]='\b';
+              c[28]='\b';
+              c[29]='\b';
+              c[30]='\b';
+              c[31]='\b';
+              c[32]='\b';
+              c[33]='\b';
+              c[34]='\b';
+              c[35]='\b';
+              c[36]='\b';
+              c[37]='\b';
+              c[38]='\b';
+              c[39]='\b';
+              c[40]='\b';
+              c[41]='\b';
+              c[42]='\b';
+              c[43]='\b';
+              c[44]='\b';
+              c[45]='\b';
+              c[46]='\b';
+              c[47]='\0';
+
+                  interrupt(0x21, 0, c, 0, 0);
+        }
         return;
 }
 
