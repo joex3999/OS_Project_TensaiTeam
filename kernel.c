@@ -182,6 +182,7 @@ void  executeProgram(char* name,int segment ){
         char buffer[13312];
         int i = 0;
         char c [50];
+        buffer[0]=0;
         readFile(name,buffer);
         if(buffer[0]!=0x00){
 

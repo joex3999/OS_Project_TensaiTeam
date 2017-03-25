@@ -18,7 +18,7 @@ int main(){
 
                 if(first) {
                         copy(line,word,5);
-
+                                buffer[0]=0x00;
                                 interrupt(0x21, 3,word, buffer, 0); /*read the file into buffer*/
                                 if(buffer[0]!=0x00)
                                 interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
@@ -30,7 +30,7 @@ int main(){
 
                 if(second) {
                     copy(line,word,8);
-                            
+
                                 interrupt(0x21, 4, word, 0x2000, 0);
 
 
