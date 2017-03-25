@@ -19,7 +19,7 @@ int main(){
                                 interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
                                 interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
                         }else
-                                interrupt(0x21, 0, "Could not find file to view  \n", 0, 0);
+                                interrupt(0x21, 0, "Could not find file to view\n\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\0", 0, 0);
 
                 }else
 
@@ -28,13 +28,13 @@ int main(){
                         if(third)
                                 interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
                         else
-                                interrupt(0x21, 0, "Could not find file to execute  \n", 0, 0);
+                                interrupt(0x21, 0, "Could not find file to execute\n\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\0", 0, 0);
                 }
 
 
                 else{
-                        interrupt(0x21, 0, "Bad Command! \n", 0, 0);
-                          
+                        interrupt(0x21, 0, "Bad Command!\n\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\0", 0, 0);
+
 
                 }
         }
