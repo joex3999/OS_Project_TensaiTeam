@@ -34,6 +34,7 @@ void printString(char *ch){
                 interrupt(0x10,0xE*256+*ch,0,0,0);
                 ch++;
         }
+        
 }
 
 void readString(char* line)

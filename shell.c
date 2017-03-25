@@ -2,29 +2,39 @@ int string_compare(char*, char*);
 int main(){
         char line[30];
         char buffer[13312];
-        int first = 0 ;
-        int second = 0 ;
+        int first = 0;
+        int second = 0;
+        int third = 0;
         while(1) {
                 interrupt(0x21, 0, "SHELL:>\0", 0, 0); /*print out the file*/
                 interrupt(0x21,1,line,0,0);
 
-                 first = string_compare(line,"view messag\0");
-               second = string_compare(line,"execute tstpr2\0");
-              if(first) {
-                        interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
-                        interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
+                //   first = string_compare(line,"view messag\0");
+                //second = string_compare(line,"execute tstpr2\0");
+                first = string_compare(line,"view\0");
+                second = string_compare(line,"execute\0");
+                if(first) {
+                        third = string_compare(line,"view messag\0");
+                        if(third) {
+                                interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
+                                interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
+                        }else
+                                interrupt(0x21, 0, "Could not find file to view  \n", 0, 0);
 
                 }else
 
                 if(second) {
-                        interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
-
+                        third = string_compare(line,"execute tstpr2\0");
+                        if(third)
+                                interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
+                        else
+                                interrupt(0x21, 0, "Could not find file to execute  \n", 0, 0);
                 }
 
 
                 else{
                         interrupt(0x21, 0, "Bad Command! \n", 0, 0);
-  
+                          
 
                 }
         }
@@ -48,14 +58,14 @@ int string_compare(char* str1, char* str2)
 
 
 
-        if(*str2=='\0'){
+        if(*str2=='\0') {
 
                 return 1;
 
-              }
+        }
         else{
 
                 return 0;
 
-              }
+        }
 }
