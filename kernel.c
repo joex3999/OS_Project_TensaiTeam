@@ -7,6 +7,8 @@ void handleInterrupt21(int, int, int, int );
 void readFile(char*,char* );
 void  executeProgram(char*,int );
 void terminate();
+void writeSector(char*,int);
+void deleteFile(char*);
 
 int main(){
         char line[80];
@@ -87,6 +89,19 @@ void readSector(char*buffer, int sector){
 
 }
 
+void writeSector(char*buffer, int sector){
+
+        int relative_sector = ( getRemainder(sector, 18) ) + 1;
+        int head = getRemainder(( DIV(sector, 18) ),2);
+        int track = DIV( sector, 36 );
+
+        //printString(DIV(10,3)+"Before Interrupt\0");
+
+        interrupt(0x13,3*256+1,buffer, track*256+relative_sector, head*256+0);
+        //printString("After Interrupt\0");
+
+}
+
 
 int getRemainder(int num, int divisor)
 {
@@ -139,6 +154,10 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
                 executeProgram(bx,cx);
         } else if(ax==5) {
                 terminate();
+        }else if(ax==6) {
+                writeSector(bx,cx);
+        }else if(ax==7) {
+                deleteFile(bx);
         }
         else {
                 printString("ERROR! Invalid interrupt number.\0");
@@ -176,6 +195,40 @@ void readFile(char* arr,char* address ){
                 }
         }
         return;
+}
+
+void deleteFile (char* name){
+	char mp [512];
+	char dr [512];
+	readSector(mp,1);
+	readSector(dr,2);
+        int i =0;
+        int j = 0;
+        int found = 0;
+        int start = 0;
+	 for(i=0; i <512; i++) {
+		        if(dr[i]==*(name+j)) {
+		                if(!j) {
+		                        start = i+6;
+
+		                } j++;
+		                if(j>=6||(*name+j+1)==0) {
+					dr[i-5] = 0;
+					
+					//Setting the file sectors in the directory to zeros
+					for(int x = 1; x<=26;x++ ){
+					   if(dr[i+x] != 0)
+					   mp[dr[i+x]] = 0;  //The index of the sector in the map is the same as the sector number
+					}
+					writeSector(mp,1);
+					writeSector(dr,2);
+		                        return;
+		                }
+		        }else{
+		                j=0;
+		        }
+		}
+	return;
 }
 
 void  executeProgram(char* name,int segment ){
