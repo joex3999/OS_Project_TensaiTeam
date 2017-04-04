@@ -9,24 +9,13 @@ void  executeProgram(char*,int );
 void terminate();
 void writeSector(char*,int);
 void deleteFile(char*);
-
+void writeFile(char*,char*,int);
 int main(){
-        char line[80];
-        char buffer[13312];
-        makeInterrupt21();
-//PART1:
-        //  interrupt(0x21, 0, "hello world !\0", 0, 0); /*print out the file*/
-        //  interrupt(0x21, 3, "messag\0", buffer, 0); /*read the file into buffer*/
-        //  interrupt(0x21, 0, buffer, 0, 0); /*print out the file*/
-//PART2:
-        //    interrupt(0x21, 4, "tstprg\0", 0x2000, 0);
-//PART3:
-        //    interrupt(0x21, 4, "tstpr2\0", 0x2000, 0);
-        //   interrupt(0x21, 5,0, 0, 0); /*read the file into buffer*/
-//PART4:
-interrupt(0x21, 4, "shell\0", 0x2000, 0);
-        return 0;
-
+char buffer[13312];
+makeInterrupt21();
+interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
+interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
+interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
 
 }
 
@@ -146,7 +135,9 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
         else if(ax == 1) {
                 readString(bx);
         }
-        else if(ax == 2) {
+        else if(ax == 2){
+					   	
+
                 readSector(bx,cx);
         }else if(ax==3) {
                 readFile(bx,cx);
@@ -158,6 +149,8 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
                 writeSector(bx,cx);
         }else if(ax==7) {
                 deleteFile(bx);
+        }else if(ax==8){
+        	    writeFile(bx, cx, dx);
         }
         else {
                 printString("ERROR! Invalid interrupt number.\0");
@@ -180,7 +173,7 @@ void readFile(char* arr,char* address ){
                                 start = i+6;
 
                         } j++;
-                        if(j>=6||(*arr+j+1)==0) {
+                        if(j>=6||(*(arr+j)+1)==0) {
 
                                 while(temp[start]!=0) {
                                         readSector(address,temp[start]);
@@ -197,28 +190,66 @@ void readFile(char* arr,char* address ){
         return;
 }
 
+// void deleteFile(char* arr){
+//         char temp [512];
+//         int i =0;
+//         int j = 0;
+//         int found = 0;
+//         int start = 0;
+
+//         char c [6];
+
+//         readSector(temp,2);
+
+//         for(i=0; i <512; i++) {
+//                 if(temp[i]==*(arr+j)) {
+//                         if(!j) {
+//                                 start = i+6;
+
+//                         } j++;
+//                         if(j>=6||(*(arr+j)+1)==0) {
+
+                                
+//                                 temp[start-6]=0x00;
+//                                 writeSector(temp,2);
+//                                 }
+//                                 return;
+//                         }
+//                 else{
+//                         j=0;
+//                 }
+//         }
+
+	
+
+
+//         return;
+// }
 void deleteFile (char* name){
 	char mp [512];
 	char dr [512];
-	readSector(mp,1);
-	readSector(dr,2);
         int i =0;
         int j = 0;
         int found = 0;
         int start = 0;
+        int x = 0 ;
+     	readSector(mp,1);
+		readSector(dr,2);
 	 for(i=0; i <512; i++) {
 		        if(dr[i]==*(name+j)) {
 		                if(!j) {
 		                        start = i+6;
-
-		                } j++;
+		                }
+		                // k e r n e l 6 
+		                 j++;
 		                if(j>=6||(*name+j+1)==0) {
-					dr[i-5] = 0;
-					
+					dr[start-6] = 0;
+					interrupt(0x10,0xE*256+'G',0,0,0);
 					//Setting the file sectors in the directory to zeros
-					for(int x = 1; x<=26;x++ ){
+					for( x = 1; x<=26;x++){
 					   if(dr[i+x] != 0)
 					   mp[dr[i+x]] = 0;  //The index of the sector in the map is the same as the sector number
+					
 					}
 					writeSector(mp,1);
 					writeSector(dr,2);
@@ -228,6 +259,43 @@ void deleteFile (char* name){
 		                j=0;
 		        }
 		}
+	return;
+}
+
+void writeFile(char* name, char* buffer, int secNum){
+	char mp [512];
+	char dr [512];
+        int i =0;
+        int j = 0;
+        int found = 0;
+        int start = 0;
+        int x = 0 ;
+     	readSector(mp,1);
+		readSector(dr,2);
+	 for(i=0; i <512; i+=6) {
+
+		        if(dr[i]==0) {
+
+		            for(x=0;x<32;x++){
+
+		            	//Replace existing characters with the name characters
+		            	while(*name != '\0'){
+		            		dr[i+x]=*name;
+		            		name++;
+		            		x++;
+		            	}
+		            	//Fill the rest of the 6 characters with zeros
+		            	while(x<6){
+		            		dr[i+x]=0;
+		            		x++;
+		            	}
+		            	
+		            
+		            }
+		                
+		        
+		        }
+	}
 	return;
 }
 

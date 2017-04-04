@@ -14,6 +14,7 @@ int main(){
 
                 first = string_compare(line,"view\0");
                 second = string_compare(line,"execute\0");
+                third = string_compare(line,"delete\0");
 
 
                 if(first) {
@@ -29,11 +30,19 @@ int main(){
                 }else
 
                 if(second) {
-                    copy(line,word,8);
-
+                                copy(line,word,8);
                                 interrupt(0x21, 4, word, 0x2000, 0);
 
 
+                }else
+
+                if(third){
+
+
+                                interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
+                            //    interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
+                            //    interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
+                                
                 }
 
 
