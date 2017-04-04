@@ -10,13 +10,24 @@ void terminate();
 void writeSector(char*,int);
 void deleteFile(char*);
 void writeFile(char*,char*,int);
-int main(){
-char buffer[13312];
-makeInterrupt21();
-interrupt(0x21, 7, "messag\0", 0, 0); //delete messag
-interrupt(0x21, 3, "messag\0", buffer, 0); // try to read messag
-interrupt(0x21, 0, buffer, 0, 0); //print out the contents of buffer
 
+int main(){
+
+int i=0;
+char buffer1[13312];
+char buffer2[13312];
+buffer2[0]='h'; buffer2[1]='e'; buffer2[2]='l'; buffer2[3]='l';
+buffer2[4]='o';
+for(i=5; i<13312; i++) buffer2[i]=0x0;
+makeInterrupt21();
+interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
+interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
+interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
+
+while(1){
+
+}
+return 0;
 }
 
 
@@ -265,18 +276,14 @@ void deleteFile (char* name){
 void writeFile(char* name, char* buffer, int secNum){
 	char mp [512];
 	char dr [512];
-        int i =0;
-        int j = 0;
-        int found = 0;
-        int start = 0;
-        int x = 0 ;
-     	readSector(mp,1);
-		readSector(dr,2);
-	 for(i=0; i <512; i+=6) {
+    int i = 0;
+    int j = 0;
+    int x = 0;
+    readSector(mp,1);
+	readSector(dr,2);
+	 for(i=0; i <512; i+=32) {
 
 		        if(dr[i]==0) {
-
-		            for(x=0;x<32;x++){
 
 		            	//Replace existing characters with the name characters
 		            	while(*name != '\0'){
@@ -284,18 +291,49 @@ void writeFile(char* name, char* buffer, int secNum){
 		            		name++;
 		            		x++;
 		            	}
+
 		            	//Fill the rest of the 6 characters with zeros
 		            	while(x<6){
 		            		dr[i+x]=0;
 		            		x++;
 		            	}
-		            	
-		            
-		            }
-		                
+
+		            	//Find empty sectors
+		            	for(secNum=secNum ; secNum != 0 ; secNum--){
+		            		if(j > 512){
+		            			printString("No enough available sectors for file storage.\0");
+		            			return;
+		            		}
+
+		            		while(mp[j] != 0 && j<512){
+		            			j++;
+		            			if(j > 512){
+		            			printString("No enough available sectors for file storage.\0");
+		            			return;
+		            			}
+		            		}
+
+		            		mp[j] = 255;   //Set byte to 0xFF
+		            		dr[i+x] = j;
+		            		x++;
+		            		writeSector(buffer, j);
+		            		buffer += 512;
+		            	}
+
+		            	//Set the rest of the directory entry to zeros
+		            	for(x=x; x<32; x++){
+		            		dr[i+x]=0;
+		            	}
+
+		            	writeSector(mp,1);
+						writeSector(dr,2);
+
+		            	return;      
 		        
 		        }
 	}
+
+	printString("No available directory entries.\0");
 	return;
 }
 
