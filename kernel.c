@@ -11,23 +11,16 @@ void writeSector(char*,int);
 void deleteFile(char*);
 void writeFile(char*,char*,int);
 
+
 int main(){
+        char sector[512];
+        char buffer[13312];
+        makeInterrupt21();
+        interrupt(0x21, 4, "shell\0", 0x2000, 0);
+        return 0;
 
-int i=0;
-char buffer1[13312];
-char buffer2[13312];
-buffer2[0]='h'; buffer2[1]='e'; buffer2[2]='l'; buffer2[3]='l';
-buffer2[4]='o';
-for(i=5; i<13312; i++) buffer2[i]=0x0;
-makeInterrupt21();
-interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
-interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
-interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
 
-while(1){
 
-}
-return 0;
 }
 
 
@@ -146,8 +139,8 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
         else if(ax == 1) {
                 readString(bx);
         }
-        else if(ax == 2){
-					   	
+        else if(ax == 2) {
+
 
                 readSector(bx,cx);
         }else if(ax==3) {
@@ -160,8 +153,8 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
                 writeSector(bx,cx);
         }else if(ax==7) {
                 deleteFile(bx);
-        }else if(ax==8){
-        	    writeFile(bx, cx, dx);
+        }else if(ax==8) {
+                writeFile(bx, cx, dx);
         }
         else {
                 printString("ERROR! Invalid interrupt number.\0");
@@ -201,140 +194,214 @@ void readFile(char* arr,char* address ){
         return;
 }
 
-// void deleteFile(char* arr){
-//         char temp [512];
-//         int i =0;
-//         int j = 0;
-//         int found = 0;
-//         int start = 0;
 
-//         char c [6];
-
-//         readSector(temp,2);
-
-//         for(i=0; i <512; i++) {
-//                 if(temp[i]==*(arr+j)) {
-//                         if(!j) {
-//                                 start = i+6;
-
-//                         } j++;
-//                         if(j>=6||(*(arr+j)+1)==0) {
-
-                                
-//                                 temp[start-6]=0x00;
-//                                 writeSector(temp,2);
-//                                 }
-//                                 return;
-//                         }
-//                 else{
-//                         j=0;
-//                 }
-//         }
-
-	
-
-
-//         return;
-// }
 void deleteFile (char* name){
-	char mp [512];
-	char dr [512];
+        char mp [512];
+        char dr [512];
         int i =0;
         int j = 0;
         int found = 0;
         int start = 0;
-        int x = 0 ;
-     	readSector(mp,1);
-		readSector(dr,2);
-	 for(i=0; i <512; i++) {
-		        if(dr[i]==*(name+j)) {
-		                if(!j) {
-		                        start = i+6;
-		                }
-		                // k e r n e l 6 
-		                 j++;
-		                if(j>=6||(*name+j+1)==0) {
-					dr[start-6] = 0;
-					interrupt(0x10,0xE*256+'G',0,0,0);
-					//Setting the file sectors in the directory to zeros
-					for( x = 1; x<=26;x++){
-					   if(dr[i+x] != 0)
-					   mp[dr[i+x]] = 0;  //The index of the sector in the map is the same as the sector number
-					
-					}
-					writeSector(mp,1);
-					writeSector(dr,2);
-		                        return;
-		                }
-		        }else{
-		                j=0;
-		        }
-		}
-	return;
+        int x = 0;
+        char c [50];
+        readSector(mp,1);
+        readSector(dr,2);
+
+        for(i=0; i <512; i++) {
+                if(dr[i]==*(name+j)) {
+                        if(!j) {
+                                start = i+6;
+                        }
+                        // k e r n e l 6
+                        j++;
+                        if(j>=6||(*name+j+1)==0) {
+                                dr[start-6] = 0;
+
+                                //Setting the file sectors in the directory to zeros
+                                for( x = 1; x<=26; x++) {
+                                        if(dr[i+x] != 0)
+                                                mp[dr[i+x]] = 0;  //The index of the sector in the map is the same as the sector number
+
+                                }
+                                writeSector(mp,1);
+                                writeSector(dr,2);
+
+                                c[0]='F';
+                                c[1]='i';
+                                c[2]='l';
+                                c[3]='e';
+                                c[4]=' ';
+                                c[5]='D';
+                                c[6]='e';
+                                c[7]='l';
+                                c[8]='e';
+                                c[9]='t';
+                                c[10]='e';
+                                c[11]='d';
+                                c[12]=' ';
+                                c[13]=' ';
+                                c[14]=' ';
+                                c[15]=' ';
+                                c[16]=' ';
+                                c[17]=' ';
+                                c[18]=' ';
+                                c[19]='\n';
+                                c[20]='\b';
+                                c[21]='\b';
+                                c[22]='\b';
+                                c[23]='\b';
+                                c[24]='\b';
+                                c[25]='\b';
+                                c[26]='\b';
+                                c[27]='\b';
+                                c[28]='\b';
+                                c[29]='\b';
+                                c[30]='\b';
+                                c[31]='\b';
+                                c[32]='\b';
+                                c[33]='\b';
+                                c[34]='\b';
+                                c[35]='\b';
+                                c[36]='\b';
+                                c[37]='\b';
+                                c[38]='\b';
+                                c[39]='\b';
+                                c[40]='\b';
+                                c[41]='\b';
+                                c[42]='\b';
+                                c[43]='\b';
+                                c[44]='\b';
+                                c[45]='\b';
+                                c[46]='\b';
+                                c[47]='\0';
+
+                                interrupt(0x21, 0, c, 0, 0);
+                                return;
+                        }
+                }else{
+                        j=0;
+                }
+                if(i==511)
+                {
+
+                        c[0]='F';
+                        c[1]='i';
+                        c[2]='l';
+                        c[3]='e';
+                        c[4]=' ';
+                        c[5]='D';
+                        c[6]='o';
+                        c[7]='e';
+                        c[8]='s';
+                        c[9]=' ';
+                        c[10]='n';
+                        c[11]='o';
+                        c[12]='t';
+                        c[13]=' ';
+                        c[14]='e';
+                        c[15]='x';
+                        c[16]='i';
+                        c[17]='s';
+                        c[18]='t';
+                        c[19]='\n';
+                        c[20]='\b';
+                        c[21]='\b';
+                        c[22]='\b';
+                        c[23]='\b';
+                        c[24]='\b';
+                        c[25]='\b';
+                        c[26]='\b';
+                        c[27]='\b';
+                        c[28]='\b';
+                        c[29]='\b';
+                        c[30]='\b';
+                        c[31]='\b';
+                        c[32]='\b';
+                        c[33]='\b';
+                        c[34]='\b';
+                        c[35]='\b';
+                        c[36]='\b';
+                        c[37]='\b';
+                        c[38]='\b';
+                        c[39]='\b';
+                        c[40]='\b';
+                        c[41]='\b';
+                        c[42]='\b';
+                        c[43]='\b';
+                        c[44]='\b';
+                        c[45]='\b';
+                        c[46]='\b';
+                        c[47]='\0';
+
+                        interrupt(0x21, 0, c, 0, 0);
+                }
+
+        }
+        return;
 }
 
 void writeFile(char* name, char* buffer, int secNum){
-	char mp [512];
-	char dr [512];
-    int i = 0;
-    int j = 0;
-    int x = 0;
-    readSector(mp,1);
-	readSector(dr,2);
-	 for(i=0; i <512; i+=32) {
+        char mp [512];
+        char dr [512];
+        int i = 0;
+        int j = 0;
+        int x = 0;
+        readSector(mp,1);
+        readSector(dr,2);
+        for(i=0; i <512; i+=32) {
 
-		        if(dr[i]==0) {
+                if(dr[i]==0) {
 
-		            	//Replace existing characters with the name characters
-		            	while(*name != '\0'){
-		            		dr[i+x]=*name;
-		            		name++;
-		            		x++;
-		            	}
+                        //Replace existing characters with the name characters
+                        while(*name != '\0') {
+                                dr[i+x]=*name;
+                                name++;
+                                x++;
+                        }
 
-		            	//Fill the rest of the 6 characters with zeros
-		            	while(x<6){
-		            		dr[i+x]=0;
-		            		x++;
-		            	}
+                        //Fill the rest of the 6 characters with zeros
+                        while(x<6) {
+                                dr[i+x]=0;
+                                x++;
+                        }
 
-		            	//Find empty sectors
-		            	for(secNum=secNum ; secNum != 0 ; secNum--){
-		            		if(j > 512){
-		            			printString("No enough available sectors for file storage.\0");
-		            			return;
-		            		}
+                        //Find empty sectors
+                        for(secNum=secNum; secNum != 0; secNum--) {
+                                if(j > 512) {
+                                        printString("No enough available sectors for file storage.\0");
+                                        return;
+                                }
 
-		            		while(mp[j] != 0 && j<512){
-		            			j++;
-		            			if(j > 512){
-		            			printString("No enough available sectors for file storage.\0");
-		            			return;
-		            			}
-		            		}
+                                while(mp[j] != 0 && j<512) {
+                                        j++;
+                                        if(j > 512) {
+                                                printString("No enough available sectors for file storage.\0");
+                                                return;
+                                        }
+                                }
 
-		            		mp[j] = 255;   //Set byte to 0xFF
-		            		dr[i+x] = j;
-		            		x++;
-		            		writeSector(buffer, j);
-		            		buffer += 512;
-		            	}
+                                mp[j] = 255; //Set byte to 0xFF
+                                dr[i+x] = j;
+                                x++;
+                                writeSector(buffer, j);
+                                buffer += 512;
+                        }
 
-		            	//Set the rest of the directory entry to zeros
-		            	for(x=x; x<32; x++){
-		            		dr[i+x]=0;
-		            	}
+                        //Set the rest of the directory entry to zeros
+                        for(x=x; x<32; x++) {
+                                dr[i+x]=0;
+                        }
 
-		            	writeSector(mp,1);
-						writeSector(dr,2);
+                        writeSector(mp,1);
+                        writeSector(dr,2);
 
-		            	return;      
-		        
-		        }
-	}
+                        return;
 
-	printString("No available directory entries.\0");
-	return;
+                }
+        }
+
+        printString("No available directory entries.\0");
+        return;
 }
 
 void  executeProgram(char* name,int segment ){
@@ -343,76 +410,77 @@ void  executeProgram(char* name,int segment ){
         char c [50];
         buffer[0]=0;
         readFile(name,buffer);
-        if(buffer[0]!=0x00){
+        if(buffer[0]!=0x00) {
 
-        for(i =0; i <13312; i++) {
-                putInMemory(segment,i,buffer[i]);
-        }
+                for(i =0; i <13312; i++) {
+                        putInMemory(segment,i,buffer[i]);
+                }
 
-        launchProgram(segment);}else{
+                launchProgram(segment);
+        }else{
 
-              c[0]='F';
-              c[1]='i';
-              c[2]='l';
-              c[3]='e';
-              c[4]=' ';
-              c[5]='D';
-              c[6]='o';
-              c[7]='e';
-              c[8]='s';
-              c[9]=' ';
-              c[10]='n';
-              c[11]='o';
-              c[12]='t';
-              c[13]=' ';
-              c[14]='e';
-              c[15]='x';
-              c[16]='i';
-              c[17]='s';
-              c[18]='t';
-              c[19]='\n';
-              c[20]='\b';
-              c[21]='\b';
-              c[22]='\b';
-              c[23]='\b';
-              c[24]='\b';
-              c[25]='\b';
-              c[26]='\b';
-              c[27]='\b';
-              c[28]='\b';
-              c[29]='\b';
-              c[30]='\b';
-              c[31]='\b';
-              c[32]='\b';
-              c[33]='\b';
-              c[34]='\b';
-              c[35]='\b';
-              c[36]='\b';
-              c[37]='\b';
-              c[38]='\b';
-              c[39]='\b';
-              c[40]='\b';
-              c[41]='\b';
-              c[42]='\b';
-              c[43]='\b';
-              c[44]='\b';
-              c[45]='\b';
-              c[46]='\b';
-              c[47]='\0';
+                c[0]='F';
+                c[1]='i';
+                c[2]='l';
+                c[3]='e';
+                c[4]=' ';
+                c[5]='D';
+                c[6]='o';
+                c[7]='e';
+                c[8]='s';
+                c[9]=' ';
+                c[10]='n';
+                c[11]='o';
+                c[12]='t';
+                c[13]=' ';
+                c[14]='e';
+                c[15]='x';
+                c[16]='i';
+                c[17]='s';
+                c[18]='t';
+                c[19]='\n';
+                c[20]='\b';
+                c[21]='\b';
+                c[22]='\b';
+                c[23]='\b';
+                c[24]='\b';
+                c[25]='\b';
+                c[26]='\b';
+                c[27]='\b';
+                c[28]='\b';
+                c[29]='\b';
+                c[30]='\b';
+                c[31]='\b';
+                c[32]='\b';
+                c[33]='\b';
+                c[34]='\b';
+                c[35]='\b';
+                c[36]='\b';
+                c[37]='\b';
+                c[38]='\b';
+                c[39]='\b';
+                c[40]='\b';
+                c[41]='\b';
+                c[42]='\b';
+                c[43]='\b';
+                c[44]='\b';
+                c[45]='\b';
+                c[46]='\b';
+                c[47]='\0';
 
-                  interrupt(0x21, 0, c, 0, 0);
+                interrupt(0x21, 0, c, 0, 0);
         }
         return;
 }
 
 
 void terminate(){
-  char c [6];
-  c[0]='s';
-  c[1]='h';
-  c[2]='e';
-  c[3]='l';
-  c[4]='l';
-  c[5]='\0';
-      interrupt(0x21, 4, c, 0x2000, 0);
+        char c [6];
+        c[0]='s';
+        c[1]='h';
+        c[2]='e';
+        c[3]='l';
+        c[4]='l';
+        c[5]='\0';
+        interrupt(0x21, 4, c, 0x2000, 0);
 }

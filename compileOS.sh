@@ -12,4 +12,4 @@ ld86 -o shell -d shell.o lib.o
 dd if=kernel of=floppya.img bs=512 conv=notrunc seek=3
 ./loadFile shell
 ./loadFile message.txt
-bochs -f config.bxrc
+echo 'c' | bochs -f config.bxrc
