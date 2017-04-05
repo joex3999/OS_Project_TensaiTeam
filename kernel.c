@@ -14,13 +14,27 @@ void writeFile(char*,char*,int);
 
 int main(){
         char sector[512];
-        char buffer[13312];
+
+
+        int i=0;
+        char buffer1[13312];
+        char buffer2[13312];
+        buffer2[0]='h'; buffer2[1]='e'; buffer2[2]='l'; buffer2[3]='l';
+        buffer2[4]='o';
+        for(i=5; i<13312; i++) buffer2[i]=0x0;
         makeInterrupt21();
+
+        for(i=0; i<512; i++)
+                sector[i]= 255;
+        writeSector(sector,1);
+        // interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
+        // interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
+        // interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
         interrupt(0x21, 4, "shell\0", 0x2000, 0);
+        while(1) {
+
+        }
         return 0;
-
-
-
 }
 
 
@@ -346,6 +360,65 @@ void writeFile(char* name, char* buffer, int secNum){
         int i = 0;
         int j = 0;
         int x = 0;
+        char c [57];
+        c[0]= 'N';
+        c[1]= 'o';
+        c[2]= ' ';
+        c[3]= 'a';
+        c[4]= 'v';
+        c[5]= 'a';
+        c[6]= 'i';
+        c[7]= 'l';
+        c[8]= 'a';
+        c[9]= 'b';
+        c[10]= 'l';
+        c[11]= 'e';
+        c[12]= ' ';
+        c[13]= 's';
+        c[14]= 'e';
+        c[15]= 'c';
+        c[16]= 't';
+        c[17]= 'o';
+        c[18]= 'r';
+        c[19]= 's';
+          c[20]= '\n';
+        c[21]= '\b';
+        c[22]= '\b';
+        c[23]= '\b';
+        c[24]= '\b';
+        c[25]= '\b';
+        c[26]= '\b';
+        c[27]= '\b';
+        c[28]= '\b';
+        c[29]= '\b';
+        c[30]= '\b';
+        c[31]= '\b';
+          c[32]= '\b';
+          c[33]= '\b';
+          c[34]= '\b';
+          c[35]= '\b';
+          c[36]= '\b';
+          c[37]= '\b';
+          c[38]= '\b';
+          c[39]= '\b';
+          c[40]= '\b';
+          c[41]= '\b';
+          c[42]= '\b';
+          c[43]= '\b';
+            c[44]= '\b';
+            c[45]= '\b';
+            c[46]= '\b';
+            c[47]= '\b';
+            c[48]= '\b';
+            c[49]= '\b';
+            c[50]= '\b';
+            c[51]= '\b';
+            c[52]= '\b';
+            c[53]= '\b';
+            c[54]= '\b';
+            c[55]= '\b';
+              c[56]= '\0';
+
         readSector(mp,1);
         readSector(dr,2);
         for(i=0; i <512; i+=32) {
@@ -367,24 +440,23 @@ void writeFile(char* name, char* buffer, int secNum){
 
                         //Find empty sectors
                         for(secNum=secNum; secNum != 0; secNum--) {
-                                if(j > 512) {
-                                        printString("No enough available sectors for file storage.\0");
-                                        return;
-                                }
+
 
                                 while(mp[j] != 0 && j<512) {
                                         j++;
-                                        if(j > 512) {
-                                                printString("No enough available sectors for file storage.\0");
-                                                return;
-                                        }
-                                }
 
-                                mp[j] = 255; //Set byte to 0xFF
-                                dr[i+x] = j;
-                                x++;
-                                writeSector(buffer, j);
-                                buffer += 512;
+                                }
+                                if(j >= 512) {
+                                        printString(c);
+
+
+                                }else{
+                                        mp[j] = 255; //Set byte to 0xFF
+                                        dr[i+x] = j;
+                                        x++;
+                                        writeSector(buffer, j);
+                                        buffer += 512;
+                                }
                         }
 
                         //Set the rest of the directory entry to zeros
@@ -400,7 +472,7 @@ void writeFile(char* name, char* buffer, int secNum){
                 }
         }
 
-        printString("No available directory entries.\0");
+        printString(c); 
         return;
 }
 
