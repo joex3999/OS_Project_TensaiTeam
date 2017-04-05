@@ -13,20 +13,18 @@ void writeFile(char*,char*,int);
 
 
 int main(){
-        char sector[512];
-
-
-        int i=0;
-        char buffer1[13312];
-        char buffer2[13312];
-        buffer2[0]='h'; buffer2[1]='e'; buffer2[2]='l'; buffer2[3]='l';
-        buffer2[4]='o';
-        for(i=5; i<13312; i++) buffer2[i]=0x0;
+      //  char sector[512];
+  //  int i=0;
+        // char buffer1[13312];
+        // char buffer2[13312];
+        // buffer2[0]='h'; buffer2[1]='e'; buffer2[2]='l'; buffer2[3]='l';
+        // buffer2[4]='o';
+        // for(i=5; i<13312; i++) buffer2[i]=0x0;
         makeInterrupt21();
 
-        for(i=0; i<512; i++)
-                sector[i]= 255;
-        writeSector(sector,1);
+        // for(i=0; i<512; i++)
+        //         sector[i]= 255;
+        // writeSector(sector,1);
         // interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
         // interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
         // interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
@@ -472,7 +470,7 @@ void writeFile(char* name, char* buffer, int secNum){
                 }
         }
 
-        printString(c); 
+        printString(c);
         return;
 }
 
