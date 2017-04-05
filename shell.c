@@ -105,7 +105,7 @@ int string_compare(char* str1, char* str2)
         }
 }
 void getFiles(char* pointer){
-        int i;
+        int i;  
         int s;
         int sum=0;
         for(i = 0; i<512; i+=32) {
