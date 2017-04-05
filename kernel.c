@@ -355,9 +355,11 @@ void deleteFile (char* name){
 void writeFile(char* name, char* buffer, int secNum){
         char mp [512];
         char dr [512];
+        char drBackup [512];
         int i = 0;
         int j = 0;
         int x = 0;
+        int failed =0;
         char c [57];
         c[0]= 'N';
         c[1]= 'o';
@@ -424,9 +426,8 @@ void writeFile(char* name, char* buffer, int secNum){
                 if(dr[i]==0) {
 
                         //Replace existing characters with the name characters
-                        while(*name != '\0') {
-                                dr[i+x]=*name;
-                                name++;
+                        while(*(name+x) != '\0') {
+                                dr[i+x]=*(name+x);
                                 x++;
                         }
 
@@ -446,6 +447,9 @@ void writeFile(char* name, char* buffer, int secNum){
                                 }
                                 if(j >= 512) {
                                         printString(c);
+                                        failed=1;
+                                        break;
+                                        
 
 
                                 }else{
@@ -464,6 +468,7 @@ void writeFile(char* name, char* buffer, int secNum){
 
                         writeSector(mp,1);
                         writeSector(dr,2);
+                        deleteFile(name);
 
                         return;
 

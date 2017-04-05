@@ -3,6 +3,11 @@ void copy(char*, char*,int );
 void getFiles(char*);
 void createFile(char*);
 int ceil (int);
+void copyCommand(char*);
+int DIV(int,int );
+int getRemainder(int, int);
+void stringSplit(char*,char*,char*);
+
 int main(){
         char line[30];
         char buffer[13312];
@@ -12,6 +17,7 @@ int main(){
         int third = 0;
         int fourth = 0;
         int fifth = 0;
+        int sixth =0;
         char word [30];
         while(1) {
                 interrupt(0x21, 0, "SHELL:>\0", 0, 0); /*print out the file*/
@@ -23,6 +29,7 @@ int main(){
                 third = string_compare(line,"delete\0");
                 fourth = string_compare(line,"dir\0");
                 fifth = string_compare(line,"create\0");
+                sixth = string_compare(line,"copy\0");
                 if(first) {
                         copy(line,word,5);
                         buffer[0]=0x00;
@@ -54,6 +61,10 @@ int main(){
                         copy(line,word,7);
                         createFile(word);
 
+                }else if(sixth){
+                    copy(line,word,5);
+                    copyCommand(word);
+                        
                 }else{
                         interrupt(0x21, 0, "Bad Command!\n\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\0", 0, 0);
 
@@ -125,6 +136,27 @@ void copy(char*str1, char* str2,int s){
         return;
 }
 
+void stringSplit(char*str1, char* str2 , char* str3 ){
+         str1++;
+         while(*str1!=' '){
+                *str2=*str1;
+                str2++;
+                str1++;
+         }
+
+         while(*str1!='\0'){
+                *str3=*str1;
+                str3++;
+                str1++;
+         }
+
+         *str2='\0';
+         *str3='\0';
+
+         return;
+
+}
+
 void createFile(char*fileName){
         char buffer[13312];
         char line[13312];
@@ -161,4 +193,82 @@ int ceil(int num ){
                 num -=512;
         }
         return result;
+}
+
+void copyCommand(char* str1){
+     int x=0;
+     int i=0;
+     char b1[13312];
+     char name1[6];
+     char name2[6];
+     char toString [7];
+     int secNum =0;
+
+     interrupt(0x21, 0, str1, 0, 0);
+
+
+                       stringSplit(str1,name1,name2);
+
+                        interrupt(0x21, 0, name1, 0, 0);
+                        interrupt(0x21, 0, "\n\0", 0, 0);
+                        interrupt(0x21, 0, name2, 0, 0);
+
+                        b1[0]=0x00;
+                        x=1;
+                        interrupt(0x21, 3,name1, b1, 0);
+
+                        if(b1[0]!=0x00 ){
+                                while(b1[x]!=0x00 && x < 13312){
+                                        secNum++;
+                                        x++;
+                                }
+                                    secNum++;
+                                    secNum=DIV(secNum,512);
+                                    secNum++;
+                                    interrupt(0x21, 8, name2, b1, secNum);
+                                    interrupt(0x21, 0, "Copy Successful\n\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\0", 0, 0);
+                                    return;
+
+
+                                }else{
+                                  interrupt(0x21, 0, "Could not find file to Copy From\n\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\0", 0, 0);
+                                }
+
+                                return;
+
+                    }
+
+int getRemainder(int num, int divisor)
+{
+
+        int i = 1;
+        int product = 0;
+
+        if (divisor == 0)
+        {
+                return -1;
+        }
+
+        if (divisor < 0) divisor = -divisor;
+        if (num < 0) num = -num;
+
+
+        while (product <= num)
+        {
+                product = divisor * i;
+                i++;
+        }
+
+        return num - (product - divisor);
+}
+
+
+int DIV(int num,int den){
+
+        while(getRemainder(num,den)!=0) {
+                num--;
+        }
+
+        return num/den;
+
 }
