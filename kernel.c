@@ -30,7 +30,7 @@ int main(){
         // interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
         interrupt(0x21, 4, "shell\0", 0x2000, 0);
         while(1) {
-  
+
         }
         return 0;
 }
@@ -189,7 +189,7 @@ void readFile(char* arr,char* address ){
                                 start = i+6;
 
                         } j++;
-                        if(j>=6||(*(arr+j)+1)==0) {
+                        if(j>=6||(*(arr+j+1))==0||temp[i+1]==0) {
 
                                 while(temp[start]!=0) {
                                         readSector(address,temp[start]);
@@ -205,6 +205,33 @@ void readFile(char* arr,char* address ){
         }
         return;
 }
+// void readFile(char* arr,char* address ){
+//         char temp [512];
+//         int i =0;
+//         int j = 0;
+//         int found = 0;
+//         int start = 0;
+//         readSector(temp,2);
+//         for(i=0; i <512; i+=32) {
+//           start = i+6;
+//         for(j=0 ;temp[i+j]==*(arr+j);j++){
+//           if((temp[i+j+1]==0||j>=6) &&(*(arr+j+1)==0)) {
+//             found = 1 ;
+//             break;
+//           }
+//         }
+//         if(found){
+//           while(temp[start]!=0){
+//             readSector(address,temp[start]);
+//             address+=512;
+//             start++;
+//           }
+//           return ;
+//         }
+//         }
+//         return;
+// }
+
 
 
 void deleteFile (char* name){
@@ -424,7 +451,7 @@ void writeFile(char* name, char* buffer, int secNum){
                 if(dr[i]==0) {
 
                         //Replace existing characters with the name characters
-                        while(*name != '\0') {
+                        while(*name!=0&&*name!=0x0d&&*name!=0x0a) {
                                 dr[i+x]=*name;
                                 name++;
                                 x++;

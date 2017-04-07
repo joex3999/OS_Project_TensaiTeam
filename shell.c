@@ -197,6 +197,8 @@ void createFile(char*fileName){
         int pos2;
         int i =0;
         int secNum =0;
+        for(i=0 ; i<13312;i++)
+        buffer[i]=0;
         while(1) {
                 pos2 = 0;
                 interrupt(0x10,0xE*256+'$',0,0,0);
