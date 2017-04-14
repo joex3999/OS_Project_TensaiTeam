@@ -5,21 +5,31 @@ int DIV(int,int );
 void readSector(char*, int );
 void handleInterrupt21(int, int, int, int );
 void readFile(char*,char* );
-void  executeProgram(char*,int );
+void executeProgram(char* );
 void terminate();
 void writeSector(char*,int);
 void deleteFile(char*);
 void writeFile(char*,char*,int);
-
-
+void handleTimerInterrupt(int , int );
+int currentProcess;
+int activeProcesses[8];
+int stackPointers[8];
 int main(){
+        int i=0;
       //  char sector[512];
-  //  int i=0;
+    
         // char buffer1[13312];
         // char buffer2[13312];
         // buffer2[0]='h'; buffer2[1]='e'; buffer2[2]='l'; buffer2[3]='l';
         // buffer2[4]='o';
         // for(i=5; i<13312; i++) buffer2[i]=0x0;
+        currentProcess=0;
+
+        for(i=0;i<7;i++){
+            activeProcesses[i]=0;
+            stackPointers[i]=0xFF00;
+        }
+        makeTimerInterrupt();
         makeInterrupt21();
 
         // for(i=0; i<512; i++)
@@ -142,7 +152,10 @@ int DIV(int num,int den){
         return num/den;
 
 }
-
+void handleTimerInterrupt(int segment, int sp){
+    //printString("Tic \0");
+    returnFromTimer(segment,sp);
+}
 void handleInterrupt21(int ax, int bx, int cx, int dx){
 
         if(ax == 0) {
@@ -158,7 +171,7 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
         }else if(ax==3) {
                 readFile(bx,cx);
         } else if(ax==4) {
-                executeProgram(bx,cx);
+                executeProgram(bx);
         } else if(ax==5) {
                 terminate();
         }else if(ax==6) {
@@ -501,12 +514,24 @@ void writeFile(char* name, char* buffer, int secNum){
         return;
 }
 
-void  executeProgram(char* name,int segment ){
+void  executeProgram(char* name){
+        int p = 0;
+        int segment=0;
         char buffer[13312];
         int i = 0;
         char c [50];
         buffer[0]=0;
         readFile(name,buffer);
+
+        while(activeProcesses[p]==1){
+            p++;
+            if(p==8){
+                return;   //Exits program if no empty segment is found
+            }
+        }
+        activeProcesses[p] = 1;
+        segment = (p+2) * 0x1000;
+
         if(buffer[0]!=0x00) {
 
                 for(i =0; i <13312; i++) {
