@@ -17,7 +17,7 @@ int stackPointers[8];
 int main(){
         int i=0;
       //  char sector[512];
-    
+
         // char buffer1[13312];
         // char buffer2[13312];
         // buffer2[0]='h'; buffer2[1]='e'; buffer2[2]='l'; buffer2[3]='l';
@@ -165,8 +165,6 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
                 readString(bx);
         }
         else if(ax == 2) {
-
-
                 readSector(bx,cx);
         }else if(ax==3) {
                 readFile(bx,cx);
@@ -529,7 +527,9 @@ void  executeProgram(char* name){
                 return;   //Exits program if no empty segment is found
             }
         }
+          setKernelDataSegment();
         activeProcesses[p] = 1;
+        restoreDataSegment();
         segment = (p+2) * 0x1000;
 
         if(buffer[0]!=0x00) {
@@ -538,7 +538,8 @@ void  executeProgram(char* name){
                         putInMemory(segment,i,buffer[i]);
                 }
 
-                launchProgram(segment);
+
+                  initializeProgram(segment);
         }else{
 
                 c[0]='F';
@@ -597,12 +598,17 @@ void  executeProgram(char* name){
 
 
 void terminate(){
-        char c [6];
-        c[0]='s';
-        c[1]='h';
-        c[2]='e';
-        c[3]='l';
-        c[4]='l';
-        c[5]='\0';
-        interrupt(0x21, 4, c, 0x2000, 0);
+      setKernelDataSegment();
+  activeProcesses[currentProcess]=0;
+  while(1){
+
+  }
+        // char c [6];
+        // c[0]='s';
+        // c[1]='h';
+        // c[2]='e';
+        // c[3]='l';
+        // c[4]='l';
+        // c[5]='\0';
+        // interrupt(0x21, 4, c, 0x2000, 0);
 }
