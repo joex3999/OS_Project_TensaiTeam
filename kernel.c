@@ -1,4 +1,4 @@
-void printString(char*);
+  void printString(char*);
 void readString(char*);
 int getRemainder(int, int );
 int DIV(int,int );
@@ -11,11 +11,16 @@ void writeSector(char*,int);
 void deleteFile(char*);
 void writeFile(char*,char*,int);
 void handleTimerInterrupt(int , int );
+int mod(int , int );
 int currentProcess;
 int activeProcesses[8];
 int stackPointers[8];
+int Processes[8][2]; // 0 Status  // 1 SP
+int timer ;
+void  executeProgram2(char*,int );
 int main(){
         int i=0;
+        int j= 0;
       //  char sector[512];
 
         // char buffer1[13312];
@@ -24,13 +29,16 @@ int main(){
         // buffer2[4]='o';
         // for(i=5; i<13312; i++) buffer2[i]=0x0;
         currentProcess=0;
-
-        for(i=0;i<7;i++){
-            activeProcesses[i]=0;
-            stackPointers[i]=0xFF00;
+        timer = 0 ;
+        for(i=0;i<8;i++){
+            Processes[i][0]=0;
+          Processes[i][1]=0xFF00;
         }
-        makeTimerInterrupt();
+
+
         makeInterrupt21();
+        makeTimerInterrupt();
+
 
         // for(i=0; i<512; i++)
         //         sector[i]= 255;
@@ -38,13 +46,24 @@ int main(){
         // interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
         // interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
         // interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
-        interrupt(0x21, 4, "shell\0", 0x2000, 0);
+
+         interrupt(0x21, 4, "hello1\0", 0, 0);
+        // interrupt(0x21, 4, "hello2\0", 0, 0);
+
+      //  interrupt(0x21, 4, "shell\0", 0x2000, 0);
+         interrupt(0x21, 4, "hello1\0", 0, 0);
+        interrupt(0x21, 4, "hello2\0", 0, 0);
         while(1) {
 
         }
         return 0;
 }
-
+int mod(int a, int b) {
+  while (a >= b) {
+    a -= b;
+  }
+  return a;
+}
 
 void printString(char *ch){
         while (*ch != '\0') {
@@ -153,7 +172,46 @@ int DIV(int num,int den){
 
 }
 void handleTimerInterrupt(int segment, int sp){
-    //printString("Tic \0");
+
+
+    int i = currentProcess+1;
+    int j =0 ;
+    timer ++;
+
+    if(timer==15){
+
+       timer = 0;
+       Processes[currentProcess][1]=sp;
+
+       while(1){
+         if(i>=8)i=0;
+
+         if(i==currentProcess)
+           break;
+
+
+         if(Processes[i][0]==1){
+
+            currentProcess= i ;
+
+           interrupt(0x10,0xE*256+'O',0,0,0);
+           for(j =0 ; j<8;j++){
+             printString("Status of row ");
+               interrupt(0x10,0xE*256+(j+48),0,0,0);
+                 interrupt(0x10,0xE*256+(Processes[j][0]+48),0,0,0);
+           }
+
+          returnFromTimer((currentProcess+2) * 0x1000, Processes[currentProcess][1] );
+
+             return ;
+
+         }
+         i++;
+       }
+
+    }
+
+
     returnFromTimer(segment,sp);
 }
 void handleInterrupt21(int ax, int bx, int cx, int dx){
@@ -200,7 +258,7 @@ void readFile(char* arr,char* address ){
                                 start = i+6;
 
                         } j++;
-                        if(j>=6||(*(arr+j+1))==0||temp[i+1]==0) {
+                        if(j>=6||(*(arr+j)+1)==0) {
 
                                 while(temp[start]!=0) {
                                         readSector(address,temp[start]);
@@ -512,24 +570,30 @@ void writeFile(char* name, char* buffer, int secNum){
         return;
 }
 
+
+
+
 void  executeProgram(char* name){
         int p = 0;
         int segment=0;
+        int j = 0;
         char buffer[13312];
         int i = 0;
         char c [50];
         buffer[0]=0;
         readFile(name,buffer);
 
-        while(activeProcesses[p]==1){
-            p++;
-            if(p==8){
-                return;   //Exits program if no empty segment is found
-            }
-        }
+        for(p = 0; p < 8; p++)
+        if(!Processes[p][0])
+          break;
+
+      if(p == 8)
+        return;
+
           setKernelDataSegment();
-        activeProcesses[p] = 1;
+        Processes[p][0] = 1;
         restoreDataSegment();
+              interrupt(0x10,0xE*256+(p+48),0,0,0);
         segment = (p+2) * 0x1000;
 
         if(buffer[0]!=0x00) {
@@ -597,12 +661,84 @@ void  executeProgram(char* name){
 }
 
 
+
+
+void  executeProgram2(char* name,int segment ){
+        char buffer[13312];
+        int i = 0;
+        char c [50];
+        buffer[0]=0;
+        readFile(name,buffer);
+        if(buffer[0]!=0x00) {
+
+                for(i =0; i <13312; i++) {
+                        putInMemory(segment,i,buffer[i]);
+                }
+
+                launchProgram(segment);
+        }else{
+
+                c[0]='F';
+                c[1]='i';
+                c[2]='l';
+                c[3]='e';
+                c[4]=' ';
+                c[5]='D';
+                c[6]='o';
+                c[7]='e';
+                c[8]='s';
+                c[9]=' ';
+                c[10]='n';
+                c[11]='o';
+                c[12]='t';
+                c[13]=' ';
+                c[14]='e';
+                c[15]='x';
+                c[16]='i';
+                c[17]='s';
+                c[18]='t';
+                c[19]='\n';
+                c[20]='\b';
+                c[21]='\b';
+                c[22]='\b';
+                c[23]='\b';
+                c[24]='\b';
+                c[25]='\b';
+                c[26]='\b';
+                c[27]='\b';
+                c[28]='\b';
+                c[29]='\b';
+                c[30]='\b';
+                c[31]='\b';
+                c[32]='\b';
+                c[33]='\b';
+                c[34]='\b';
+                c[35]='\b';
+                c[36]='\b';
+                c[37]='\b';
+                c[38]='\b';
+                c[39]='\b';
+                c[40]='\b';
+                c[41]='\b';
+                c[42]='\b';
+                c[43]='\b';
+                c[44]='\b';
+                c[45]='\b';
+                c[46]='\b';
+                c[47]='\0';
+
+                interrupt(0x21, 0, c, 0, 0);
+        }
+        return;
+}
+
 void terminate(){
       setKernelDataSegment();
-  activeProcesses[currentProcess]=0;
-  while(1){
+  Processes[currentProcess][0]=0;
 
-  }
+  while(1);
+
+
         // char c [6];
         // c[0]='s';
         // c[1]='h';
