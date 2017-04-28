@@ -11,13 +11,14 @@ void writeSector(char*,int);
 void deleteFile(char*);
 void writeFile(char*,char*,int);
 void handleTimerInterrupt(int , int );
+void  executeProgram2(char*,int );
+void printNum(int );
 int mod(int , int );
 int currentProcess;
-int activeProcesses[8];
-int stackPointers[8];
 int Processes[8][2]; // 0 Status  // 1 SP
 int timer ;
-void  executeProgram2(char*,int );
+
+
 int main(){
         int i=0;
         int j= 0;
@@ -28,14 +29,14 @@ int main(){
         // buffer2[0]='h'; buffer2[1]='e'; buffer2[2]='l'; buffer2[3]='l';
         // buffer2[4]='o';
         // for(i=5; i<13312; i++) buffer2[i]=0x0;
-        currentProcess=0;
-        timer = 0 ;
+
         for(i=0;i<8;i++){
             Processes[i][0]=0;
           Processes[i][1]=0xFF00;
         }
 
-
+        currentProcess=0;
+        timer = 0 ;
         makeInterrupt21();
         makeTimerInterrupt();
 
@@ -45,17 +46,19 @@ int main(){
         // writeSector(sector,1);
         // interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
         // interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
-        // interrupt(0x21,0, buffer1, 0, 0); // print out contents of testW
+        // interrupt(0x21,0, buffr1, 0, 0); // print out contents of testW
 
-         interrupt(0x21, 4, "hello1\0", 0, 0);
+         interrupt(0x21, 4, "hello1\0", 0, 0); // ??
+
         // interrupt(0x21, 4, "hello2\0", 0, 0);
 
       //  interrupt(0x21, 4, "shell\0", 0x2000, 0);
-         interrupt(0x21, 4, "hello1\0", 0, 0);
-        interrupt(0x21, 4, "hello2\0", 0, 0);
-        while(1) {
+        //  interrupt(0x21, 4, "hello1\0", 0, 0);
+        // interrupt(0x21, 4, "hello2\0", 0, 0);
+        interrupt(0x21, 4, "shell\0", 0, 0);
+        while(1) ;
 
-        }
+
         return 0;
 }
 int mod(int a, int b) {
@@ -171,49 +174,38 @@ int DIV(int num,int den){
         return num/den;
 
 }
-void handleTimerInterrupt(int segment, int sp){
-
-
-    int i = currentProcess+1;
+void handleTimerInterrupt(int segment, int sp) {
+    int i = mod(currentProcess+1,8);
     int j =0 ;
+    int g ;
     timer ++;
+    if(timer ==100){
+      timer = 0;
+      Processes[currentProcess][1] = sp;
 
-    if(timer==15){
-
-       timer = 0;
-       Processes[currentProcess][1]=sp;
-
-       while(1){
-         if(i>=8)i=0;
-
-         if(i==currentProcess)
-           break;
-
-
-         if(Processes[i][0]==1){
-
-            currentProcess= i ;
-
-           interrupt(0x10,0xE*256+'O',0,0,0);
-           for(j =0 ; j<8;j++){
-             printString("Status of row ");
-               interrupt(0x10,0xE*256+(j+48),0,0,0);
-                 interrupt(0x10,0xE*256+(Processes[j][0]+48),0,0,0);
-           }
- 
-          returnFromTimer((currentProcess+2) * 0x1000, Processes[currentProcess][1] );
-
-             return ;
-
-         }
-         i++;
-       }
-
+      while(!Processes[i][0]){
+     i = mod(i + 1, 8);
+     if(!i)
+        i ++;
+      }
+      if(i == currentProcess)
+    {
+      returnFromTimer(segment,sp);
+      return;
     }
 
 
+    currentProcess = i;
+    g = (currentProcess+2)*0x1000;
+    returnFromTimer(g,Processes[currentProcess][1]);
+    return;
+
+  }
+
     returnFromTimer(segment,sp);
+
 }
+
 void handleInterrupt21(int ax, int bx, int cx, int dx){
 
         if(ax == 0) {
@@ -582,7 +574,7 @@ void  executeProgram(char* name){
         char c [50];
         buffer[0]=0;
         readFile(name,buffer);
-
+  setKernelDataSegment();
         for(p = 0; p < 8; p++)
         if(!Processes[p][0])
           break;
@@ -590,10 +582,12 @@ void  executeProgram(char* name){
       if(p == 8)
         return;
 
-          setKernelDataSegment();
+
         Processes[p][0] = 1;
         restoreDataSegment();
-              interrupt(0x10,0xE*256+(p+48),0,0,0);
+
+
+
         segment = (p+2) * 0x1000;
 
         if(buffer[0]!=0x00) {
@@ -601,7 +595,6 @@ void  executeProgram(char* name){
                 for(i =0; i <13312; i++) {
                         putInMemory(segment,i,buffer[i]);
                 }
-
 
                   initializeProgram(segment);
         }else{
@@ -747,4 +740,23 @@ void terminate(){
         // c[4]='l';
         // c[5]='\0';
         // interrupt(0x21, 4, c, 0x2000, 0);
+}
+void printNum(int num){
+        char arr[3];
+            int pos = 0;
+        arr[2]=-1;
+        arr[1]=-1;
+        arr[0]=-1;
+
+        while(num>0) {
+          arr[pos]= getRemainder(num,10);
+          num/=10;
+            pos++;
+
+        }
+
+        for(pos=2;pos>=0;pos--){
+          if(arr[pos]!=-1)
+            interrupt(0x10,0xE*256+(arr[pos]+48),0,0,0);
+        }
 }

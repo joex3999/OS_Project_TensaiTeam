@@ -45,7 +45,8 @@ int main(){
 
                 if(second) {
                         copy(line,word,8);
-                        interrupt(0x21, 4, word, 0x2000, 0);
+                        interrupt(0x21, 4, "phello\0", 0x2000, 0);
+
 
 
                 }else
