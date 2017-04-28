@@ -1,2 +1,0 @@
-I wish this prints out
-\00\00\00\00
