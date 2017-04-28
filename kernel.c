@@ -11,6 +11,7 @@ void writeSector(char*,int);
 void deleteFile(char*);
 void writeFile(char*,char*,int);
 void handleTimerInterrupt(int , int );
+void killProcess(int);
 void  executeProgram2(char*,int );
 void printNum(int );
 int mod(int , int );
@@ -206,6 +207,11 @@ void handleTimerInterrupt(int segment, int sp) {
 
 }
 
+void killProcess(int victim){
+        setKernelDataSegment();
+        Processes[victim][0]=0;
+}
+
 void handleInterrupt21(int ax, int bx, int cx, int dx){
 
         if(ax == 0) {
@@ -228,6 +234,8 @@ void handleInterrupt21(int ax, int bx, int cx, int dx){
                 deleteFile(bx);
         }else if(ax==8) {
                 writeFile(bx, cx, dx);
+        }else if(ax==9) {
+                killProcess(bx);
         }
         else {
                 printString("ERROR! Invalid interrupt number.\0");
