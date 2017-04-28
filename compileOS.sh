@@ -14,4 +14,5 @@ dd if=kernel of=floppya.img bs=512 conv=notrunc seek=3
 ./loadFile message.txt
 ./loadFile hello1
 ./loadFile hello2
+./loadFile phello
 echo 'c' | bochs -f config.bxrc
