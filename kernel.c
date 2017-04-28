@@ -36,27 +36,17 @@ int main(){
           Processes[i][1]=0xFF00;
         }
 
-        currentProcess=0;
+        currentProcess=-1;
         timer = 0 ;
         makeInterrupt21();
         makeTimerInterrupt();
 
 
-        // for(i=0; i<512; i++)
-        //         sector[i]= 255;
-        // writeSector(sector,1);
-        // interrupt(0x21,8, "testW\0", buffer2, 1); //write file testW
-        // interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
-        // interrupt(0x21,0, buffr1, 0, 0); // print out contents of testW
 
-         interrupt(0x21, 4, "hello1\0", 0, 0); //LEAVE IT
          interrupt(0x21, 4, "hello1\0", 0, 0);
-        // interrupt(0x21, 4, "hello2\0", 0, 0);
-
-      //  interrupt(0x21, 4, "shell\0", 0x2000, 0);
-        //  interrupt(0x21, 4, "hello1\0", 0, 0);
-        // interrupt(0x21, 4, "hello2\0", 0, 0);
+  
         interrupt(0x21, 4, "shell\0", 0, 0);
+
         while(1) ;
 
 
@@ -179,6 +169,7 @@ void handleTimerInterrupt(int segment, int sp) {
     int i = mod(currentProcess+1,8);
     int j =0 ;
     int g ;
+    int loop = 0 ;
     timer ++;
     if(timer ==100){
       timer = 0;
@@ -186,14 +177,17 @@ void handleTimerInterrupt(int segment, int sp) {
 
       while(!Processes[i][0]){
      i = mod(i + 1, 8);
-     if(!i)
-        i ++;
+     loop++;
+    //  if(!i)
+    //     i ++;
+        if(loop ==8)
+      {
+        currentProcess = -1;
+        returnFromTimer(segment,sp);
+        return;
       }
-      if(i == currentProcess)
-    {
-      returnFromTimer(segment,sp);
-      return;
-    }
+      }
+
 
 
     currentProcess = i;
@@ -207,9 +201,11 @@ void handleTimerInterrupt(int segment, int sp) {
 
 }
 
-void killProcess(int victim){
-        setKernelDataSegment();
-        Processes[victim][0]=0;
+void killProcess(int process) {
+  setKernelDataSegment();
+  Processes[process][0] = 0;
+  Processes[process][1] = 0xFF00;
+  restoreDataSegment();
 }
 
 void handleInterrupt21(int ax, int bx, int cx, int dx){

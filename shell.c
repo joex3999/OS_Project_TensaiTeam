@@ -9,6 +9,7 @@ int getRemainder(int, int);
 void stringSplit(char *, char *, char *);
 void printNum(int);
 int getSectorNum(char *);
+int getNumber(char *);
 int main()
 {
         char line[40];
@@ -21,6 +22,7 @@ int main()
         int fifth = 0;
         int sixth = 0;
         int seventh = 0;
+        int val = 0 ;
         char word[40];
         while (1)
         {
@@ -49,7 +51,7 @@ int main()
                     if (second)
                 {
                         copy(line, word, 8);
-                        interrupt(0x21, 4, "phello\0", 0x2000, 0);
+                        interrupt(0x21, 4, word, 0x2000, 0);
                 }
                 else
 
@@ -77,7 +79,14 @@ int main()
                 else if (seventh)
                 {
                         copy(line, word, 5);
-                        interrupt(0x21, 9, word, 0x2000,0);
+                        val = getNumber(word);
+                    
+                       if(val>=0&&val<=7){
+                       interrupt(0x21, 9, val, 0,0);}
+                       else{
+                        interrupt(0x21, 0, "Bad Command!\n\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\b\0", 0, 0);
+                       }
+
                 }
                 else
                 {
@@ -164,6 +173,31 @@ void getFiles(char *pointer)
                 }
         }
 }
+
+int getNumber(char *in){
+
+if(*in==0)
+    return 0;
+if(*in=='1')
+    return 1;
+if(*in=='2')
+    return 2;
+if(*in=='3')
+    return 3;
+if(*in=='4')
+    return 4;
+if(*in=='5')
+    return 5;
+if(*in=='6')
+    return 6;
+if(*in=='7')
+    return 7;
+
+    return -1;
+
+}
+
+
 void copy(char *str1, char *str2, int s)
 {
         str1 += s;
