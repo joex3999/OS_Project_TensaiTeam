@@ -49,8 +49,8 @@ int main(){
         // interrupt(0x21,3, "testW\0", buffer1, 0); //read file testW
         // interrupt(0x21,0, buffr1, 0, 0); // print out contents of testW
 
-         interrupt(0x21, 4, "hello1\0", 0, 0); //LEAVE IT 
-
+         interrupt(0x21, 4, "hello1\0", 0, 0); //LEAVE IT
+         interrupt(0x21, 4, "hello1\0", 0, 0);
         // interrupt(0x21, 4, "hello2\0", 0, 0);
 
       //  interrupt(0x21, 4, "shell\0", 0x2000, 0);

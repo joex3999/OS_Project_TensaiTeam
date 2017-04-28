@@ -20,6 +20,7 @@ int main()
         int fourth = 0;
         int fifth = 0;
         int sixth = 0;
+        int seventh = 0;
         char word[40];
         while (1)
         {
